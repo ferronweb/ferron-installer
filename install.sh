@@ -126,7 +126,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
@@ -172,7 +172,9 @@ if [ "$FERRONVERSION" != "" ]; then
   echo "$FERRONVERSION" > /etc/.ferron-installer.version
 fi
 unzip $FERRONZIPARCHIVE -d $FERRONEXTRACTIONDIRECTORY > /dev/null
-rm -f $FERRONZIPARCHIVE
+if [ "$INSTALLTYPE" != "manual" ]; then
+  rm -f $FERRONZIPARCHIVE
+fi
 mkdir -p /var/log/ferron
 mkdir -p /var/www
 mv $FERRONEXTRACTIONDIRECTORY/wwwroot /var/www/ferron
