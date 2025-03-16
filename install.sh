@@ -259,7 +259,9 @@ if [ "$FERRONVERSION" != "" ]; then
   echo "$FERRONVERSION" > /etc/.ferron-installer.version
 fi
 unzip $FERRONZIPARCHIVE -d $FERRONEXTRACTIONDIRECTORY > /dev/null
-rm -f $FERRONZIPARCHIVE
+if [ "$INSTALLTYPE" != "manual" ]; then
+  rm -f $FERRONZIPARCHIVE
+fi
 mv $FERRONEXTRACTIONDIRECTORY/libferron_mod_*.so /usr/lib
 mv $FERRONEXTRACTIONDIRECTORY/ferron{,-*} /usr/sbin
 chown root:root /usr/lib/libferron_mod_*.so
