@@ -224,6 +224,10 @@ if ! [ -f /etc/.ferron-installer.prop ]; then
   echo manual > /etc/.ferron-installer.prop;
 fi
 
+##Detect systemd
+systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
+
+
 ##Check the Ferron installation type
 INSTALLTYPE="$(cat /etc/.ferron-installer.prop)"
 if [ "$INSTALLTYPE" == "manual" ]; then
@@ -251,6 +255,14 @@ if ! [ -f $FERRONZIPARCHIVE ]; then
   exit 1
 fi
 
+##Stop Ferron
+echo "Stopping Ferron..."
+if [ "$systemddetect" == "" ]; then
+  /etc/init.d/ferron stop
+else
+  systemctl stop ferron
+fi
+
 ##Copy Ferron files
 echo "Copying Ferron files..."
 FERRONEXTRACTIONDIRECTORY="$(mktemp -d /tmp/ferron.XXXXX)"
@@ -270,7 +282,15 @@ chown root:root /usr/sbin/ferron{,-*}
 chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
 
-echo "Done! Ferron is updated successfully! You can now restart Ferron using \"/etc/init.d/ferron restart\" or \"systemctl restart ferron\"."
+##Restart Ferron
+echo "Restarting Ferron..."
+if [ "$systemddetect" == "" ]; then
+  /etc/init.d/ferron start
+else
+  systemctl start ferron
+fi
+
+echo "Done! Ferron is updated successfully!"
 EOF
 chmod a+rx /usr/bin/ferron-updater
 
