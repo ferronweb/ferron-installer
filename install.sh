@@ -330,7 +330,7 @@ user="ferron"
 
 script="$(basename $0)"
 lockfile="/var/lock/$script"
- 
+
 . /etc/rc.d/init.d/functions 2>/dev/null || . /etc/rc.status 2>/dev/null || . /lib/lsb/init-functions 2>/dev/null
 
 ulimit -n 12000 2>/dev/null
@@ -386,6 +386,14 @@ do_stop()
     fi
 }
 
+do_reload()
+{
+    echo -n $"Reloading $servicename: "
+    pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}'`
+    kill -1 $pid > /dev/null 2>&1 && echo_success || echo_failure
+    echo
+}
+
 do_status()
 {
    pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}' | head -n 1`
@@ -414,8 +422,12 @@ case "$1" in
         do_start
         RETVAL=$?
         ;;
+    reload)
+        privilege_check
+        do_reload
+        ;;
     *)
-        echo "Usage: $0 {start|stop|status|restart}"
+        echo "Usage: $0 {start|stop|status|restart|reload}"
         RETVAL=1
 esac
 
@@ -435,6 +447,7 @@ After=network.target
 Type=simple
 User=ferron
 ExecStart=/usr/sbin/ferron -c /etc/ferron.yaml
+ExecReload=kill -HUP $MAINPID
 Restart=on-failure
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 
