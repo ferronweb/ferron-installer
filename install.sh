@@ -178,10 +178,7 @@ fi
 mkdir -p /var/log/ferron
 mkdir -p /var/www
 mv $FERRONEXTRACTIONDIRECTORY/wwwroot /var/www/ferron
-mv $FERRONEXTRACTIONDIRECTORY/libferron_mod_*.so /usr/lib
 mv $FERRONEXTRACTIONDIRECTORY/ferron{,-*} /usr/sbin
-chown root:root /usr/lib/libferron_mod_*.so
-chmod a+rx /usr/lib/libferron_mod_*.so
 chown root:root /usr/sbin/ferron{,-*}
 chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
@@ -274,10 +271,7 @@ unzip $FERRONZIPARCHIVE -d $FERRONEXTRACTIONDIRECTORY > /dev/null
 if [ "$INSTALLTYPE" != "manual" ]; then
   rm -f $FERRONZIPARCHIVE
 fi
-mv $FERRONEXTRACTIONDIRECTORY/libferron_mod_*.so /usr/lib
 mv $FERRONEXTRACTIONDIRECTORY/ferron{,-*} /usr/sbin
-chown root:root /usr/lib/libferron_mod_*.so
-chmod a+rx /usr/lib/libferron_mod_*.so
 chown root:root /usr/sbin/ferron{,-*}
 chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
