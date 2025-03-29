@@ -32,55 +32,6 @@ else
   DISTRO=other
 fi
 
-##Detect the machine architecture
-ARCH=$(uname -m)
-
-##Normalize architecture name
-case "$ARCH" in
-  x86_64) ARCH="x86_64" ;;
-  i386 | i486 | i586 | i686) ARCH="i686" ;;
-  armv7*) ARCH="armv7" ;;
-  aarch64) ARCH="aarch64" ;;
-  riscv64) ARCH="riscv64" ;;
-  *) echo "Unknown architecture: $ARCH"; exit 1 ;;
-esac
-
-##Detect the operating system
-OS=$(uname -s)
-
-case "$OS" in
-  Linux) OS="linux" ;;
-  FreeBSD) OS="freebsd" ;;
-  *) echo "Unknown OS: $OS"; exit 1 ;;
-esac
-
-##Detect the C library
-if [ "$OS" = "linux" ]; then
-  if ldd --version 2>&1 | grep -q "musl"; then
-    LIBC="musl"
-  else
-    LIBC="gnu"
-  fi
-else
-  LIBC=""
-fi
-
-##Detect the ABI
-if [ "$ARCH" = "aarch64" ]; then
-  ABI="eabihf"
-else
-  ABI=""
-fi
-
-##Construct the target triple
-if [ -n "$LIBC" ]; then
-  TARGETTRIPLE="${ARCH}-unknown-${OS}-${LIBC}${ABI}"
-elif [ -n "$ABI" ]; then
-  TARGETTRIPLE="${ARCH}-unknown-${OS}-${ABI}"
-else
-  TARGETTRIPLE="${ARCH}-unknown-${OS}"
-fi
-
 ##Define depedency installation functions
 install_unzip() {
   case "$DISTRO" in
@@ -120,6 +71,55 @@ if [ "$INSTALLTYPE" == "manual" ]; then
   echo -n 'Path to Ferron zip archive: '
   read FERRONZIPARCHIVE
 elif [ "$INSTALLTYPE" == "stable" ]; then
+  ##Detect the machine architecture
+  ARCH=$(uname -m)
+
+  ##Normalize architecture name
+  case "$ARCH" in
+    x86_64) ARCH="x86_64" ;;
+    i386 | i486 | i586 | i686) ARCH="i686" ;;
+    armv7*) ARCH="armv7" ;;
+    aarch64) ARCH="aarch64" ;;
+    riscv64) ARCH="riscv64" ;;
+    *) echo "Unknown architecture: $ARCH"; exit 1 ;;
+  esac
+
+  ##Detect the operating system
+  OS=$(uname -s)
+  
+  case "$OS" in
+    Linux) OS="linux" ;;
+    FreeBSD) OS="freebsd" ;;
+    *) echo "Unknown OS: $OS"; exit 1 ;;
+  esac
+
+  ##Detect the C library
+  if [ "$OS" = "linux" ]; then
+    if ldd --version 2>&1 | grep -q "musl"; then
+      LIBC="musl"
+    else
+      LIBC="gnu"
+    fi
+  else
+    LIBC=""
+  fi
+
+  ##Detect the ABI
+  if [ "$ARCH" = "aarch64" ]; then
+    ABI="eabihf"
+  else
+    ABI=""
+  fi
+
+  ##Construct the target triple
+  if [ -n "$LIBC" ]; then
+    TARGETTRIPLE="${ARCH}-unknown-${OS}-${LIBC}${ABI}"
+  elif [ -n "$ABI" ]; then
+    TARGETTRIPLE="${ARCH}-unknown-${OS}-${ABI}"
+  else
+    TARGETTRIPLE="${ARCH}-unknown-${OS}"
+  fi
+
   FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
@@ -231,13 +231,62 @@ if [ "$INSTALLTYPE" == "manual" ]; then
   echo -n 'Path to Ferron zip archive: '
   read FERRONZIPARCHIVE
 elif [ "$INSTALLTYPE" == "stable" ]; then
+  ##Detect the machine architecture
+  ARCH=$(uname -m)
+
+  ##Normalize architecture name
+  case "$ARCH" in
+    x86_64) ARCH="x86_64" ;;
+    i386 | i486 | i586 | i686) ARCH="i686" ;;
+    armv7*) ARCH="armv7" ;;
+    aarch64) ARCH="aarch64" ;;
+    riscv64) ARCH="riscv64" ;;
+    *) echo "Unknown architecture: $ARCH"; exit 1 ;;
+  esac
+
+  ##Detect the operating system
+  OS=$(uname -s)
+  
+  case "$OS" in
+    Linux) OS="linux" ;;
+    FreeBSD) OS="freebsd" ;;
+    *) echo "Unknown OS: $OS"; exit 1 ;;
+  esac
+
+  ##Detect the C library
+  if [ "$OS" = "linux" ]; then
+    if ldd --version 2>&1 | grep -q "musl"; then
+      LIBC="musl"
+    else
+      LIBC="gnu"
+    fi
+  else
+    LIBC=""
+  fi
+
+  ##Detect the ABI
+  if [ "$ARCH" = "aarch64" ]; then
+    ABI="eabihf"
+  else
+    ABI=""
+  fi
+
+  ##Construct the target triple
+  if [ -n "$LIBC" ]; then
+    TARGETTRIPLE="${ARCH}-unknown-${OS}-${LIBC}${ABI}"
+  elif [ -n "$ABI" ]; then
+    TARGETTRIPLE="${ARCH}-unknown-${OS}-${ABI}"
+  else
+    TARGETTRIPLE="${ARCH}-unknown-${OS}"
+  fi
+
   FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
