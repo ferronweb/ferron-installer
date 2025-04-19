@@ -348,6 +348,13 @@ find /var/log/ferron -type f -exec chmod 644 {} \;
 find /var/www/ferron -type d -exec chmod 755 {} \;
 find /var/www/ferron -type f -exec chmod 644 {} \;
 
+##Fix SELinux context
+restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
+if [ "$restoreconutil" != "" ]; then
+  echo "Fixing SELinux context..."
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.yaml /var/www/ferron /var/log/ferron
+fi
+
 ##Install Ferron service
 echo "Installing Ferron service..."
 systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
