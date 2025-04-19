@@ -325,6 +325,13 @@ chown root:root /usr/sbin/ferron{,-*}
 chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
 
+##Fix SELinux context
+restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
+if [ "$restoreconutil" != "" ]; then
+  echo "Fixing SELinux context..."
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.yaml /var/www/ferron /var/log/ferron
+fi
+
 ##Restart Ferron
 echo "Restarting Ferron..."
 if [ "$systemddetect" == "" ]; then
