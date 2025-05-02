@@ -80,7 +80,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     i386 | i486 | i586 | i686) ARCH="i686" ;;
     armv7*) ARCH="armv7" ;;
     aarch64) ARCH="aarch64" ;;
-    riscv64) ARCH="riscv64" ;;
+    riscv64) ARCH="riscv64gc" ;;
     *) echo "Unknown architecture: $ARCH"; exit 1 ;;
   esac
 
@@ -240,7 +240,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     i386 | i486 | i586 | i686) ARCH="i686" ;;
     armv7*) ARCH="armv7" ;;
     aarch64) ARCH="aarch64" ;;
-    riscv64) ARCH="riscv64" ;;
+    riscv64) ARCH="riscv64gc" ;;
     *) echo "Unknown architecture: $ARCH"; exit 1 ;;
   esac
 
