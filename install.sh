@@ -105,7 +105,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
   fi
 
   ##Detect the ABI
-  if [ "$ARCH" = "aarch64" ]; then
+  if [ "$ARCH" = "armv7" ]; then
     ABI="eabihf"
   else
     ABI=""
@@ -265,7 +265,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
   fi
 
   ##Detect the ABI
-  if [ "$ARCH" = "aarch64" ]; then
+  if [ "$ARCH" = "armv7" ]; then
     ABI="eabihf"
   else
     ABI=""
