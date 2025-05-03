@@ -81,6 +81,8 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     armv7*) ARCH="armv7" ;;
     aarch64) ARCH="aarch64" ;;
     riscv64) ARCH="riscv64gc" ;;
+    s390x) ARCH="s390x" ;;
+    ppc64le) ARCH="powerpc64le" ;;
     *) echo "Unknown architecture: $ARCH"; exit 1 ;;
   esac
 
@@ -241,6 +243,8 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     armv7*) ARCH="armv7" ;;
     aarch64) ARCH="aarch64" ;;
     riscv64) ARCH="riscv64gc" ;;
+    s390x) ARCH="s390x" ;;
+    ppc64le) ARCH="powerpc64le" ;;
     *) echo "Unknown architecture: $ARCH"; exit 1 ;;
   esac
 
