@@ -367,7 +367,7 @@ if ! [ -d "$(getent passwd ferron | cut -d: -f6)"]; then
   echo "Modifying Ferron user..."
   mkdir -p /var/lib/ferron
   chown -hR ferron:ferron /var/lib/ferron
-  usermod -h /var/lib/ferron ferron
+  usermod -d /var/lib/ferron ferron
 fi
 
 ##Fix SELinux context
