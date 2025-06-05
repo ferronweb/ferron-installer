@@ -342,7 +342,7 @@ rm -rf $FERRONEXTRACTIONDIRECTORY
 restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
 if [ "$restoreconutil" != "" ]; then
   echo "Fixing SELinux context..."
-  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Restart Ferron
@@ -359,7 +359,7 @@ chmod a+rx /usr/bin/ferron-updater
 
 ##Create user for running Ferron and assign permissions of files
 echo "Creating user for running Ferron..."
-useradd -d /nonexistent -s /usr/sbin/nologin ferron
+useradd -d /var/lib/ferron -m -s /usr/sbin/nologin ferron
 echo "Assigning Ferron permissions..."
 chown -hR ferron:ferron /var/log/ferron
 chown -hR ferron:ferron /var/www/ferron
@@ -372,7 +372,7 @@ find /var/www/ferron -type f -exec chmod 644 {} \;
 restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
 if [ "$restoreconutil" != "" ]; then
   echo "Fixing SELinux context..."
-  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Install Ferron service

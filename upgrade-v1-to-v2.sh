@@ -347,7 +347,7 @@ rm -rf $FERRONEXTRACTIONDIRECTORY
 restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
 if [ "$restoreconutil" != "" ]; then
   echo "Fixing SELinux context..."
-  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Restart Ferron
@@ -362,11 +362,19 @@ echo "Done! Ferron is updated successfully!"
 EOF
 chmod a+rx /usr/bin/ferron-updater
 
+##Modify Ferron user
+if ! [ -d "$(getent passwd ferron | cut -d: -f6)"]; then
+  echo "Modifying Ferron user..."
+  mkdir -p /var/lib/ferron
+  chown -hR ferron:ferron /var/lib/ferron
+  usermod -h /var/lib/ferron ferron
+fi
+
 ##Fix SELinux context
 restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
 if [ "$restoreconutil" != "" ]; then
   echo "Fixing SELinux context..."
-  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron
+  restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Migrate Ferron configuration
