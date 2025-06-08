@@ -469,11 +469,11 @@ for RESTART_TRY in $(seq 1 $RESTART_MAX_TRIES); do
   echo "Restarting Ferron..."
   if [ "$systemddetect" == "" ]; then
     /etc/init.d/ferron start
-    sleep 0.5
+    sleep 1
     /etc/init.d/ferron status 2>&1 | (grep "is running..." >/dev/null 2>/dev/null && RESTART_SUCCESSFUL=1)
   else
     systemctl start ferron
-    sleep 0.5
+    sleep 1
     systemctl status ferron >/dev/null 2>/dev/null && RESTART_SUCCESSFUL=1
   fi
   if [ $RESTART_SUCCESSFUL -eq 0 ]; then
