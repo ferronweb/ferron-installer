@@ -290,7 +290,7 @@ EOF
 chmod a+rx /usr/bin/ferron-updater
 
 ##Modify Ferron user
-if ! [ -d "$(getent passwd ferron | cut -d: -f6)"]; then
+if ! [ -d "$(getent passwd ferron | cut -d: -f6)" ]; then
   echo "Modifying Ferron user..."
   mkdir -p /var/lib/ferron
   chown -hR ferron:ferron /var/lib/ferron
