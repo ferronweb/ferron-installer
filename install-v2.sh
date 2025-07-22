@@ -509,7 +509,7 @@ esac
 exit $RETVAL
 EOF
   chmod a+rx /etc/init.d/ferron
-if type systemctl > /dev/null 2>&1; then
+if ! type systemctl > /dev/null 2>&1; then
   update-rc.d ferron defaults
   /etc/init.d/ferron start
 else
