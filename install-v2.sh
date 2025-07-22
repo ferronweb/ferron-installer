@@ -432,7 +432,7 @@ do_start()
     if [ ! -f "$lockfile" ] ; then
         echo -n $"Starting $servicename: "
         setcap 'cap_net_bind_service=+ep' $server
-        runuser -l "$user" -c "$server $serverargs > /dev/null &" && echo_success || echo_failure
+        (runuser -u $user -- $server $serverargs > /dev/null &) && echo_success || echo_failure
         RETVAL=$?
         echo
         [ $RETVAL -eq 0 ] && touch "$lockfile"
