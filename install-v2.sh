@@ -122,8 +122,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  curlis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f curl | awk '{ print $2}' | xargs)
-  if [ "$curlis" == "" ]; then
+  if ! type curl > /dev/null 2>&1; then
     FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
   else
@@ -152,24 +151,20 @@ fi
 
 ##Check if unzip is installed
 echo "Checking for unzip..."
-unziputil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f unzip | awk '{ print $2}' | xargs)
-if [ "$unziputil" == "" ]; then
+if ! type unzip > /dev/null 2>&1; then
   install_unzip #Install unzip
 fi
-unziputil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f unzip | awk '{ print $2}' | xargs)
-if [ "$unziputil" == "" ]; then
+if ! type unzip > /dev/null 2>&1; then
   echo 'Can'"'"'t locate unzip!'
   exit 1
 fi
 
 ##Check if setcap is installed
 echo "Checking for setcap..."
-setcapis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f setcap | awk '{ print $2}' | xargs)
-if [ "$setcapis" == "" ]; then
-  install_setcap #Install Node.JS
+if ! type setcap > /dev/null 2>&1; then
+  install_setcap #Install setcap
 fi
-setcapis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f setcap | awk '{ print $2}' | xargs)
-if [ "$setcapis" == "" ]; then
+if ! type setcap > /dev/null 2>&1; then
   echo 'Can'"'"'t locate setcap, but it'"'"'s required for the init script'
 fi
 
@@ -239,10 +234,6 @@ if ! [ -f /etc/.ferron-installer.prop ]; then
   echo manual > /etc/.ferron-installer.prop;
 fi
 
-##Detect systemd
-systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
-
-
 ##Check the Ferron installation type
 INSTALLTYPE="$(cat /etc/.ferron-installer.prop)"
 if [ "$INSTALLTYPE" == "manual" ]; then
@@ -300,7 +291,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  if [ "$curlis" == "" ]; then
+  if ! type curl > /dev/null 2>&1; then
     FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
   else
@@ -329,7 +320,7 @@ fi
 
 ##Stop Ferron
 echo "Stopping Ferron..."
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   /etc/init.d/ferron stop
 else
   systemctl stop ferron
@@ -352,15 +343,14 @@ chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
 
 ##Fix SELinux context
-restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
-if [ "$restoreconutil" != "" ]; then
+if type restorecon > /dev/null 2>&1; then
   echo "Fixing SELinux context..."
   restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Restart Ferron
 echo "Restarting Ferron..."
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   /etc/init.d/ferron start
 else
   systemctl start ferron
@@ -382,15 +372,13 @@ find /var/www/ferron -type d -exec chmod 755 {} \;
 find /var/www/ferron -type f -exec chmod 644 {} \;
 
 ##Fix SELinux context
-restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
-if [ "$restoreconutil" != "" ]; then
+if type restorecon > /dev/null 2>&1; then
   echo "Fixing SELinux context..."
   restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Install Ferron service
 echo "Installing Ferron service..."
-systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
 cat > /etc/init.d/ferron << 'EOF'
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -521,7 +509,7 @@ esac
 exit $RETVAL
 EOF
   chmod a+rx /etc/init.d/ferron
-if [ "$systemddetect" == "" ]; then
+if type systemctl > /dev/null 2>&1; then
   update-rc.d ferron defaults
   /etc/init.d/ferron start
 else
