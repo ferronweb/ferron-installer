@@ -180,6 +180,7 @@ if [ "$INSTALLTYPE" != "manual" ]; then
   rm -f $FERRONZIPARCHIVE
 fi
 mkdir -p /var/log/ferron
+mkdir -p /var/lib/ferron
 mkdir -p /var/www
 mv $FERRONEXTRACTIONDIRECTORY/wwwroot /var/www/ferron
 mv $FERRONEXTRACTIONDIRECTORY/ferron{,-*} /usr/sbin
@@ -365,6 +366,7 @@ echo "Creating user for running Ferron..."
 useradd -d /var/lib/ferron -m -s /usr/sbin/nologin ferron
 echo "Assigning Ferron permissions..."
 chown -hR ferron:ferron /var/log/ferron
+chown -hR ferron:ferron /var/lib/ferron
 chown -hR ferron:ferron /var/www/ferron
 find /var/log/ferron -type d -exec chmod 755 {} \;
 find /var/log/ferron -type f -exec chmod 644 {} \;
