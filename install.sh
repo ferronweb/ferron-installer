@@ -88,7 +88,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
 
   ##Detect the operating system
   OS=$(uname -s)
-  
+
   case "$OS" in
     Linux) OS="linux" ;;
     FreeBSD) OS="freebsd" ;;
@@ -122,13 +122,20 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
+  curlis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f curl | awk '{ print $2}' | xargs)
+  if [ "$curlis" == "" ]; then
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
+  else
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
+  fi
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! $FERRONDOWNLOADCOMMANDANDPARAMS "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
@@ -250,7 +257,7 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
 
   ##Detect the operating system
   OS=$(uname -s)
-  
+
   case "$OS" in
     Linux) OS="linux" ;;
     FreeBSD) OS="freebsd" ;;
@@ -284,13 +291,20 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
+  curlis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f curl | awk '{ print $2}' | xargs)
+  if [ "$curlis" == "" ]; then
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
+  else
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
+  fi
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! $FERRONDOWNLOADCOMMANDANDPARAMS "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
