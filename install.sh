@@ -124,10 +124,10 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
 
   curlis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f curl | awk '{ print $2}' | xargs)
   if [ "$curlis" == "" ]; then
-    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
   else
-    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
   fi
   if [ "$FERRONVERSION" == "" ]; then
@@ -293,10 +293,10 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
 
   curlis=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f curl | awk '{ print $2}' | xargs)
   if [ "$curlis" == "" ]; then
-    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
   else
-    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest.ferron)"
     FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
   fi
   if [ "$FERRONVERSION" == "" ]; then
