@@ -85,13 +85,19 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+  if ! type curl > /dev/null 2>&1; then
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
+  else
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
+  fi
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! $FERRONDOWNLOADCOMMANDANDPARAMS "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
@@ -103,9 +109,6 @@ fi
 ##Create .installer.prop file
 echo $INSTALLTYPE > /etc/.ferron-installer.prop;
 
-##Detect systemd
-systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
-
 ##Check if Ferron zip archive exists
 if ! [ -f $FERRONZIPARCHIVE ]; then
   echo 'Can'"'"'t find Ferron archive! Make sure to download Ferron archive file from https://ferronweb.org and rename it to "ferron.zip".'
@@ -114,7 +117,7 @@ fi
 
 ##Stop Ferron
 echo "Stopping Ferron..."
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   /etc/init.d/ferron stop
 else
   systemctl stop ferron
@@ -163,10 +166,6 @@ fi
 if ! [ -f /etc/.ferron-installer.prop ]; then
   echo manual > /etc/.ferron-installer.prop;
 fi
-
-##Detect systemd
-systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
-
 
 ##Check the Ferron installation type
 INSTALLTYPE="$(cat /etc/.ferron-installer.prop)"
@@ -225,13 +224,19 @@ elif [ "$INSTALLTYPE" == "stable" ]; then
     TARGETTRIPLE="${ARCH}-unknown-${OS}"
   fi
 
-  FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+  if ! type curl > /dev/null 2>&1; then
+    FERRONVERSION="$(wget -qO- https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="wget -O-"
+  else
+    FERRONVERSION="$(curl -fsL https://downloads.ferronweb.org/latest2.ferron)"
+    FERRONDOWNLOADCOMMANDANDPARAMS="curl -fsSL"
+  fi
   if [ "$FERRONVERSION" == "" ]; then
     echo 'There was a problem while determining latest Ferron version!'
     exit 1
   fi
   FERRONZIPARCHIVE="$(mktemp /tmp/ferron.XXXXX.zip)"
-  if ! curl -fsSL "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
+  if ! $FERRONDOWNLOADCOMMANDANDPARAMS "https://downloads.ferronweb.org/$FERRONVERSION/ferron-$FERRONVERSION-$TARGETTRIPLE.zip" > $FERRONZIPARCHIVE; then
     echo 'There was a problem while downloading latest Ferron version!'
     exit 1
   fi
@@ -248,7 +253,7 @@ fi
 
 ##Stop Ferron
 echo "Stopping Ferron..."
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   /etc/init.d/ferron stop
 else
   systemctl stop ferron
@@ -271,15 +276,14 @@ chmod a+rx /usr/sbin/ferron{,-*}
 rm -rf $FERRONEXTRACTIONDIRECTORY
 
 ##Fix SELinux context
-restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
-if [ "$restoreconutil" != "" ]; then
+if type restorecon > /dev/null 2>&1 then
   echo "Fixing SELinux context..."
   restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
 
 ##Restart Ferron
 echo "Restarting Ferron..."
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   /etc/init.d/ferron start
 else
   systemctl start ferron
@@ -298,8 +302,7 @@ if ! [ -d "$(getent passwd ferron | cut -d: -f6)" ]; then
 fi
 
 ##Fix SELinux context
-restoreconutil=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f restorecon | awk '{ print $2}' | xargs)
-if [ "$restoreconutil" != "" ]; then
+if type restorecon > /dev/null 2>&1 then
   echo "Fixing SELinux context..."
   restorecon -r /usr/sbin/ferron{,-*} /usr/bin/ferron-updater /etc/ferron.kdl /var/www/ferron /var/log/ferron /var/lib/ferron
 fi
@@ -312,7 +315,6 @@ chmod a+r /etc/ferron.kdl
 
 ##Reinstall Ferron service
 echo "Reinstalling Ferron service..."
-systemddetect=$(whereis -b -B $(echo $PATH | sed 's|:| |g') -f systemctl | awk '{ print $2}' | xargs)
 cat > /etc/init.d/ferron << 'EOF'
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -354,7 +356,7 @@ do_start()
     if [ ! -f "$lockfile" ] ; then
         echo -n $"Starting $servicename: "
         setcap 'cap_net_bind_service=+ep' $server
-        runuser -l "$user" -c "$server $serverargs > /dev/null &" && echo_success || echo_failure
+        (runuser -u $user -- $server $serverargs > /dev/null &) && echo_success || echo_failure
         RETVAL=$?
         echo
         [ $RETVAL -eq 0 ] && touch "$lockfile"
@@ -379,7 +381,11 @@ echo_warning() {
 do_stop()
 {
     echo -n $"Stopping $servicename: "
-    pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}'`
+    if type ps > /dev/null 2>&1; then
+      pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}' | xargs`
+    else
+      pid=`pidof $server | xargs`
+    fi
     kill -9 $pid > /dev/null 2>&1 && echo_success || echo_failure
     RETVAL=$?
     echo
@@ -439,7 +445,7 @@ esac
 exit $RETVAL
 EOF
   chmod a+rx /etc/init.d/ferron
-if [ "$systemddetect" == "" ]; then
+if ! type systemctl > /dev/null 2>&1; then
   update-rc.d ferron defaults
 else
   cat > /etc/systemd/system/ferron.service << 'EOF'
@@ -467,7 +473,7 @@ RESTART_SUCCESSFUL=0
 RESTART_MAX_TRIES=5
 for RESTART_TRY in $(seq 1 $RESTART_MAX_TRIES); do
   echo "Restarting Ferron..."
-  if [ "$systemddetect" == "" ]; then
+  if ! type systemctl > /dev/null 2>&1; then
     /etc/init.d/ferron start
     sleep 1
     /etc/init.d/ferron status 2>&1 | (grep "is running..." >/dev/null 2>/dev/null && RESTART_SUCCESSFUL=1)
