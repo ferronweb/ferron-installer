@@ -400,14 +400,22 @@ do_stop()
 do_reload()
 {
     echo -n $"Reloading $servicename: "
-    pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}'`
+    if type ps > /dev/null 2>&1; then
+      pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}' | xargs`
+    else
+      pid=`pidof $server | xargs`
+    fi
     kill -1 $pid > /dev/null 2>&1 && echo_success || echo_failure
     echo
 }
 
 do_status()
 {
-   pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}' | head -n 1`
+   if type ps > /dev/null 2>&1; then
+     pid=`ps -aefw | grep "$server $serverargs" | grep -v " grep " | awk '{print $2}' | head -n 1`
+   else
+     pid=`pidof -s $server`
+   fi
    if [ "$pid" != "" ]; then
      echo "$servicename (pid $pid) is running..."
    else
